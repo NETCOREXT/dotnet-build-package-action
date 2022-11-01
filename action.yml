@@ -66,7 +66,7 @@ runs:
 
         dotnet pack $PROJECT_PATH $ADDITIONAL_ARGUMENTS
 
-        echo "::set-output name=short-sha::$COMMIT_SHORT_SHA"
+        echo "short-sha=$COMMIT_SHORT_SHA" >> $GITHUB_OUTPUT
     - name: Find Package
       shell: bash
       run: |
@@ -80,4 +80,4 @@ runs:
         path: ./packages
     - name: Set Outputs
       shell: bash
-      run: echo "::set-output name=artifact::packages-${{ steps.build.outputs.short-sha }}"
+      run: echo "artifact=packages-${{ steps.build.outputs.short-sha }}" >> $GITHUB_OUTPUT
