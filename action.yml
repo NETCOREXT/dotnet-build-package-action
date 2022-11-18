@@ -18,12 +18,6 @@ inputs:
   branch-production:
     description: "Production Branch"
     default: "main"
-  branch-staging:
-    description: "Staging Branch"
-    default: "stg"
-  branch-development:
-    description: "Development Branch"
-    default: "dev"
 outputs:
   artifact:
     description: "Artifact Name"
