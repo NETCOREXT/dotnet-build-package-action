@@ -3,18 +3,18 @@ description: 'Build dotnet package'
 
 inputs:
   app:
-    required: true
     description: "App Name"
-  src:
-    required: true
-    description: "Source path"
-    default: "src"
+  dotnet-version:
+    description: 'Dotnet Version'
+    default: "6.0.x"
   nuget-api-url:
     description: "NuGet URL"
   nuget-api-key:
     description: 'NuGet API key'
   artifact:
     description: "Artifact Name"
+  artifact-path:
+    description: "Artifact Path"
   branch-production:
     description: "Production Branch"
     default: "main"
@@ -32,11 +32,11 @@ runs:
       if: inputs.artifact != ''
       with:
         name: ${{ inputs.artifact }}
-        path: ${{ inputs.src }}
+        path: ${{ inputs.artifact-path }}
     - name: Setup .NET
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: 6.0.x
+        dotnet-version: ${{ inputs.dotnet-version }}
     - name: Add NuGet Source
       shell: bash
       if: inputs.nuget-api-url != '' && inputs.nuget-api-key != ''
@@ -56,16 +56,14 @@ runs:
           ADDITIONAL_ARGUMENTS="-c Release"
         fi
 
-        PROJECT_PATH=`find ${{ inputs.src }} -type f -iname "${APP}.csproj"`
-
-        dotnet pack $PROJECT_PATH $ADDITIONAL_ARGUMENTS
+        if [ -z "$APP"]; then
+          dotnet pack $ADDITIONAL_ARGUMENTS -o ./packages
+        else
+          PROJECT_PATH=`find . -type f -iname "${APP}.csproj"`
+          dotnet pack $PROJECT_PATH $ADDITIONAL_ARGUMENTS -o ./packages
+        fi
 
         echo "short-sha=$COMMIT_SHORT_SHA" >> $GITHUB_OUTPUT
-    - name: Find Package
-      shell: bash
-      run: |
-        mkdir -p ./packages
-        find ** -type f -regex '.*\.s?nupkg' -exec mv {} ./packages/ \;
     - uses: actions/upload-artifact@v3
       name: Upload packages to artifact
       id: upload-artifact
