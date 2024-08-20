@@ -19,6 +19,12 @@ inputs:
     description: "Production Branch"
     default: "main"
 outputs:
+  app:
+    description: "App Name"
+    value: ${{ inputs.app }}
+  version:
+    description: "Version"
+    value: ${{ steps.build.outputs.version }}
   artifact:
     description: "Artifact Name"
     value: ${{ steps.upload-artifact.outputs.artifact }}
@@ -56,14 +62,28 @@ runs:
           ADDITIONAL_ARGUMENTS="-c Release"
         fi
 
-        if [ -z "$APP"]; then
+        if [ -z "$APP" ]; then
           dotnet pack $ADDITIONAL_ARGUMENTS -o ./packages
         else
           PROJECT_PATH=`find . -type f -iname "${APP}.csproj"`
           dotnet pack $PROJECT_PATH $ADDITIONAL_ARGUMENTS -o ./packages
         fi
 
+        if [ -z "$APP" ]; then
+          ASSEMBLY_VERSION=""
+        else
+          PACKAGE_PATH=`find ./packages -type f -iname "*.nupkg"`
+
+          REGEX="${APP}\.(.*)\.nupkg"
+
+          if [[ "$PACKAGE_PATH" =~ $REGEX ]]; then
+            ASSEMBLY_VERSION="${BASH_REMATCH[1]}"
+          fi
+        fi
+
+
         echo "short-sha=$COMMIT_SHORT_SHA" >> $GITHUB_OUTPUT
+        echo "version=$ASSEMBLY_VERSION" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
       name: Upload packages to artifact
       id: upload-artifact
