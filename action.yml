@@ -81,7 +81,6 @@ runs:
           fi
         fi
 
-
         echo "short-sha=$COMMIT_SHORT_SHA" >> $GITHUB_OUTPUT
         echo "version=$ASSEMBLY_VERSION" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v4
