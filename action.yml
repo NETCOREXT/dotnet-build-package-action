@@ -87,8 +87,8 @@ runs:
       name: Upload packages to artifact
       id: upload-artifact
       with:
-        name: packages-${{ steps.build.outputs.short-sha }}
+        name: packages-${{ inputs.app }}-${{ steps.build.outputs.short-sha }}
         path: ./packages
     - name: Set Outputs
       shell: bash
-      run: echo "artifact=packages-${{ steps.build.outputs.short-sha }}" >> $GITHUB_OUTPUT
+      run: echo "artifact=packages-${{ inputs.app }}-${{ steps.build.outputs.short-sha }}" >> $GITHUB_OUTPUT
